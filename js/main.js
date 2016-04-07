@@ -25,7 +25,7 @@ window.onload = function() {
     var folder, folder1, folder2, folder3, folder4, folder5;
     var folder6, folder7, folder8, folder9, folder10, folder11;
     var player, cursors, jumpButton;
-    var emitter, enemies;
+    var emitter, enemies, challenges;
     var heart,heart1,heart2;
     var folders;
     var facing = 'left';
@@ -42,7 +42,7 @@ window.onload = function() {
        game.add.image(0,960,'bar');
      
         //the player
-        player = game.add.sprite(0,0,'mouse');
+        player = game.add.sprite(0,955,'mouse');
         game.physics.arcade.enable(player);
         player.body.bounce.y = 0.2; //low bounce
         player.body.gravity.y = 250;       
@@ -55,14 +55,7 @@ window.onload = function() {
         
         cursors = game.input.keyboard.createCursorKeys();
         jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        game.camera.follow(player);
-        
-       //computer icons on desktop world
-       gIcon = game.add.sprite(680,300,'gIcon');
-       //mIcon = game.add.sprite(250,300,'mIcon');
-       mail = game.add.sprite(700,50,'mail');
-       files = game.add.sprite(100,250,'files');
-       
+        game.camera.follow(player);     
         
         //the folders are just platforms to jump on to move throughout the game world, not interactive challenges
        folders = game.add.group();
@@ -92,14 +85,22 @@ window.onload = function() {
        folder10.body.immovable = true; 
        folder11 = folders.create(600,850,'folder');
        folder11.body.immovable = true; 
-        
-       //eFolder = game.add.sprite(300,300,'eFolder');
-     
+         
         //enemies
         enemies = game.add.emitter(game.world.centerX,-200,200);
         enemies.setYSpeed(-300,-5000);
         enemies.makeParticles(['virus']);
         enemies.start(false, 14000, 40);
+           
+        challenges = game.add.group();
+        challenges.enableBody = true;
+        
+       //computer icons on desktop world
+       gIcon = challenges.create(680,300,'gIcon');
+       //mIcon = game.challenges.create(250,300,'mIcon');
+       mail = challenges.create(700,50,'mail');
+       files = challenges.create(100,250,'files');
+       //eFolder = game.add.sprite(300,300,'eFolder');
         
          //these are the lives for the game
         heart = game.add.sprite(16,50,'heart');
@@ -119,12 +120,11 @@ window.onload = function() {
         
     }
     
-    function update() {
-       
+    function update() {    
         //collisions with other objects
         game.physics.arcade.collide(player, folders);
           player.body.velocity.x = 0;
-
+        game.physics.arcade.overlap(player, challenges, collectChallenge, null, this);
         game.physics.arcade.overlap(player, enemies, enemyHitsPlayer, null, this);
         if (cursors.left.isDown)
         {
@@ -208,7 +208,17 @@ window.onload = function() {
       heart2.revive();      
   }
     
-    
+   function collectChallenge (player, challenge) {
+    if(score=10){
+        score = score;
+    }
+    else{
+         score += 1; //increase score of firefly 
+    }
+       
+    scoreText.text = score + '/10 Challenges Complete';
+    challenge.kill();
+   }
     function render(){
         //game.debug.cameraInfo(game.camera,32,32);
         //game.debug.spriteCoords(player,32,500);
