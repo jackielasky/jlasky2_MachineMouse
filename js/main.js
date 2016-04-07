@@ -23,12 +23,15 @@ window.onload = function() {
     
     var gIcon, mIcon, eFolder, mail, files;
     var folder, folder1, folder2, folder3, folder4, folder5;
-    var folder6, folder7, folder8, folder9, folder10;
+    var folder6, folder7, folder8, folder9, folder10, folder11;
     var player, cursors, jumpButton;
     var emitter, enemies;
     var heart,heart1,heart2;
     var folders;
     var facing = 'left';
+    var strikes=0;
+    var score=0;
+    var stateText,stateText2, scoreText;
     
     function create() {
        
@@ -44,7 +47,7 @@ window.onload = function() {
         player.body.bounce.y = 0.2; //low bounce
         player.body.gravity.y = 250;       
         player.body.collideWorldBounds = true;
-        player.body.setSize(70,30,5,16);
+    
      //   player.animations.add('left', [0, 1, 2, 3], 10, true);
     //    player.animations.add('turn', [4], 20, true);
     //    player.animations.add('right', [5, 6, 7, 8], 10, true);
@@ -77,7 +80,7 @@ window.onload = function() {
        folder4.body.immovable = true;
        folder5 = folders.create(109,100,'folder');
        folder5.body.immovable = true;
-       folder6 = folders.create(500,500,'folder');
+       folder6 = folders.create(300,900,'folder');
        folder6.body.immovable = true;
        folder7 = folders.create(640,400,'folder');
        folder7.body.immovable = true;
@@ -85,8 +88,11 @@ window.onload = function() {
        folder8.body.immovable = true;
        folder9 = folders.create(610,300,'folder');
        folder9.body.immovable = true;
-       folder10 = folders.create(600,100,'folder');
+       folder10 = folders.create(12,800,'folder');
        folder10.body.immovable = true; 
+       folder11 = folders.create(600,850,'folder');
+       folder11.body.immovable = true; 
+        
        //eFolder = game.add.sprite(300,300,'eFolder');
      
         //enemies
@@ -100,88 +106,108 @@ window.onload = function() {
         heart1 = game.add.sprite(55,50,'heart');
         heart2 = game.add.sprite(95,50,'heart');
         
-           
+        stateText = game.add.text(game.world.centerX,game.world.centerY,' ',     { font: '50px Arial', fill: '#fff' });
+        stateText.anchor.setTo(0.5, 0.5);
+        stateText.visible = false;
+        
+        stateText2 = game.add.text(game.world.centerX,game.world.centerY,' ',    { font: '50px Arial', fill: '#fff' });
+        stateText2.anchor.setTo(0.5, 0.5);
+        stateText2.visible = false;
+        
+         //  The score
+        scoreText = game.add.text(16, 16, '0/10 Challenges Complete', { fontSize: '40px', fill: '#fff' }); 
         
     }
     
     function update() {
        
+        //collisions with other objects
         game.physics.arcade.collide(player, folders);
           player.body.velocity.x = 0;
 
-    if (cursors.left.isDown)
-    {
-        player.body.velocity.x = -150;
-
-        if (facing != 'left')
+        game.physics.arcade.overlap(player, enemies, enemyHitsPlayer, null, this);
+        if (cursors.left.isDown)
         {
-            player.animations.play('left');
-            facing = 'left';
-        }
-    }
-    else if (cursors.right.isDown)
-    {
-        player.body.velocity.x = 150;
-
-        if (facing != 'right')
-        {
-            player.animations.play('right');
-            facing = 'right';
-        }
-    }
-    else
-    {
-        if (facing != 'idle')
-        {
-            player.animations.stop();
-
-            if (facing == 'left')
-            {
-                player.frame = 0;
-            }
-            else
-            {
-                player.frame = 5;
-            }
-
-            facing = 'idle';
-        }
-    }
-        
-        
-        /* if (cursors.left.isDown)
-        {
-            //  Move to the left
             player.body.velocity.x = -150;
 
-            player.animations.play('left');
+            if (facing != 'left')
+            {
+                player.animations.play('left');
+                facing = 'left';
+            }
         }
         else if (cursors.right.isDown)
         {
-            //  Move to the right
             player.body.velocity.x = 150;
 
-            player.animations.play('right');
-        }
-        else if (cursors.up.isDown)
-        {
-            player.body.velocity.y = -350;
+            if (facing != 'right')
+            {
+                player.animations.play('right');
+                facing = 'right';
+            }
         }
         else
         {
-            //  Stand still
-            player.animations.stop();
+            if (facing != 'idle')
+            {
+                player.animations.stop();
 
-            player.frame = 4;
+                if (facing == 'left')
+                {
+                    player.frame = 0;
+                }
+                else
+                {
+                    player.frame = 5;
+                }
+
+                facing = 'idle';
+            }
         }
-        */
-        
+
         if (jumpButton.isDown)
         {
             player.body.velocity.y = -250;
             //jumpTimer = game.time.now + 750;
         }
     }
+    
+    function enemyHitsPlayer (player,virus) {
+        strikes +=1;
+        virus.kill();
+       
+        if (strikes==1){
+            heart.kill();            
+        }
+        if (strikes==2){
+            heart1.kill();
+        }
+        if(strikes==3){
+            heart2.kill();
+        }
+        //make noise
+        if(strikes>3){
+            game.paused = true;
+            virus.kill();
+            stateText.visible = true;
+            stateText.text="GAME OVER! \n Click here to restart";
+            game.input.onTap.addOnce(restart,this);   
+        }   
+    }
+    
+    function restart () {    
+    //resets the score count, unpauses game  
+      score = 0;
+      strikes=0;
+      game.paused = false;
+      stateText2.visible=false;
+      stateText.visible = false;
+      //revive lives
+      heart.revive();
+      heart1.revive();
+      heart2.revive();      
+  }
+    
     
     function render(){
         //game.debug.cameraInfo(game.camera,32,32);
