@@ -280,7 +280,9 @@ window.onload = function() {
        // game.debug.spriteCoords(player,32,500);        
     }
     function keyPress(char) {
-
+        
+        check = [];
+        
         //  Clear the BMD
         bmd.cls();
 
