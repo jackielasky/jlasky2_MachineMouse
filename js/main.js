@@ -307,7 +307,7 @@ window.onload = function() {
             }
             else
             {
-                bmd.context.fillStyle = '#999999';
+                bmd.context.fillStyle = 'rgba(255,0,0,0.0)';
             }
 
             bmd.context.fillText(letter, x, 64);
