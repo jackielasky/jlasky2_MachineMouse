@@ -209,7 +209,7 @@ window.onload = function() {
   }
     
    function collectChallenge (player, challenge) {
-    if(score=10){
+    if(score==10){
         score = score;
     }
     else{
