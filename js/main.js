@@ -9,7 +9,7 @@ window.onload = function() {
     function preload() {
          game.load.image('windows','assets/blueBackground2.png');
          game.load.image('bar','assets/bar.png')
-         game.load.image('eFolder','assets/encryptedFolder.png');
+         game.load.image('eFolder','assets/encryptedfolder.png');
          game.load.image('files','assets/files.png');
          game.load.image('folder','assets/folder2.png');
          game.load.image('mail','assets/mailIcon.png');
@@ -18,6 +18,7 @@ window.onload = function() {
          game.load.image('gIcon','assets/gameIcon.png');
          game.load.image('virus','assets/virus.png');
          game.load.image('heart','assets/heart1.png');
+         game.load.image('matrix','assets/matrix.png');
         
     }
     
@@ -27,25 +28,33 @@ window.onload = function() {
     var player, cursors, jumpButton;
     var emitter, enemies, challenges;
     var heart,heart1,heart2;
-    var folders;
+    var folders, eFolders;
     var facing = 'left';
     var strikes=0;
     var score=0;
-    var stateText,stateText2, scoreText;
+    var jumpTimer=0;
+    var stateText,stateText2, scoreText, level1text;
+         
+    var word = "password123";       
+    var correct = [];
+    var bmd;
+    var success = false;
+    var count =0;
     
     function create() {
        
     //change camera view of the game and add physics component
        game.physics.startSystem(Phaser.Physics.ARCADE);
-       game.add.tileSprite(0, 0, 1000, 1000,'windows');  //background
-       game.world.setBounds(0, 0, 1000, 1000);
-       game.add.image(0,960,'bar');
+      // game.add.tileSprite(0, 0, 1000, 1000,'windows');  
+     //  game.world.setBounds(0, 0, 1000, 1000);
+      game.add.sprite(-100, -150, 'windows');
+        game.add.image(-200,560,'bar');
      
         //the player
         player = game.add.sprite(0,955,'mouse');
         game.physics.arcade.enable(player);
         player.body.bounce.y = 0.2; //low bounce
-        player.body.gravity.y = 250;       
+        player.body.gravity.y = 400;       
         player.body.collideWorldBounds = true;
     
      //   player.animations.add('left', [0, 1, 2, 3], 10, true);
@@ -87,25 +96,31 @@ window.onload = function() {
        folder11.body.immovable = true; 
          
         //enemies
-        enemies = game.add.emitter(game.world.centerX,-200,200);
+        /*enemies = game.add.emitter(game.world.centerX,-200,200);
         enemies.setYSpeed(-300,-5000);
         enemies.makeParticles(['virus']);
-        enemies.start(false, 14000, 40);
+        enemies.start(false, 14000, 40);*/
            
         challenges = game.add.group();
         challenges.enableBody = true;
         
        //computer icons on desktop world
-       gIcon = challenges.create(680,300,'gIcon');
+      eFolders = game.add.group();
+      eFolders.enableBody=true;
+      //eFolder = eFolders.create(350,830,'eFolder');
+      eFolder = eFolders.create(250,500,'eFolder');
+        
+        //  eFolder = challenges.create(350,830,'eFolder'); // challenge 1
+       //gIcon = challenges.create(680,300,'gIcon');
        //mIcon = game.challenges.create(250,300,'mIcon');
-       mail = challenges.create(700,50,'mail');
-       files = challenges.create(100,250,'files');
-       //eFolder = game.add.sprite(300,300,'eFolder');
+       mail = challenges.create(700,150,'mail');
+       //files = challenges.create(100,250,'files');
+      
         
          //these are the lives for the game
-        heart = game.add.sprite(16,50,'heart');
-        heart1 = game.add.sprite(55,50,'heart');
-        heart2 = game.add.sprite(95,50,'heart');
+        heart = game.add.sprite(680,50,'heart');
+        heart1 = game.add.sprite(720,50,'heart');
+        heart2 = game.add.sprite(765,50,'heart');
         
         stateText = game.add.text(game.world.centerX,game.world.centerY,' ',     { font: '50px Arial', fill: '#fff' });
         stateText.anchor.setTo(0.5, 0.5);
@@ -115,8 +130,14 @@ window.onload = function() {
         stateText2.anchor.setTo(0.5, 0.5);
         stateText2.visible = false;
         
+        //intructions on challenge 1
+       level1text = game.add.text(10,855,' Challenge 1: Solve the Riddle to obtain encrypted files.',    { font: '30px Arial', fill: '#599' });
+        level1text.anchor.setTo(0.5, 0.5);
+        level1text.visible = false;
+        
+        
          //  The score
-        scoreText = game.add.text(16, 16, '0/10 Challenges Complete', { fontSize: '40px', fill: '#fff' }); 
+        scoreText = game.add.text(450, 16, '0/10 Challenges Complete', { fontSize: '40px', fill: '#fff' }); 
         
     }
     
@@ -124,7 +145,8 @@ window.onload = function() {
         //collisions with other objects
         game.physics.arcade.collide(player, folders);
           player.body.velocity.x = 0;
-        game.physics.arcade.overlap(player, challenges, collectChallenge, null, this);
+        game.physics.arcade.overlap(player, eFolders, collectEfolder, null, this);
+      //  game.physics.arcade.overlap(player, challenges, collectChallenge, null, this);
         game.physics.arcade.overlap(player, enemies, enemyHitsPlayer, null, this);
         if (cursors.left.isDown)
         {
@@ -165,10 +187,10 @@ window.onload = function() {
             }
         }
 
-        if (jumpButton.isDown)
+        if (jumpButton.isDown && game.time.now > jumpTimer)
         {
             player.body.velocity.y = -250;
-            //jumpTimer = game.time.now + 750;
+            jumpTimer = game.time.now + 750;
         }
     }
     
@@ -202,13 +224,47 @@ window.onload = function() {
       game.paused = false;
       stateText2.visible=false;
       stateText.visible = false;
+        
       //revive lives
       heart.revive();
       heart1.revive();
       heart2.revive();      
   }
+       
+    
+   function collectEfolder(player,eFolders){
+    eFolder.kill();
+    level1text.visibile=true;
+  // game.add.sprite(-100, -150,'matrix');
+    //intructions on challenge 1
+    var text;
+    text = game.add.text(400,300,'Unscramble the Password to Retrieve the Files: 2swop3as1dr',    { font: '25px Arial', fill: '#fff' });
+    text.anchor.setTo(0.5, 0.5);
+    text.visible = true;
+     
+    for (var i = 0; i < word.length; i++){
+        correct[word[i]] = false;
+    }
+       //word being entered
+    bmd = game.make.bitmapData(800, 200);
+    bmd.context.font = '64px Arial';
+    bmd.context.fillStyle = '#111111';
+    bmd.context.fillText(word, 300, 300);
+    bmd.addToWorld();
+   // while(count!=10){
+    game.input.keyboard.addCallbacks(this, null, null, keyPress);
+   //  }
+  
+       // matrix.kill();
+    if(count==10){
+    text.visible=false;
+    score+=1;     
+    }
+ 
+   }  
     
    function collectChallenge (player, challenge) {
+   
     if(score==10){
         score = score;
     }
@@ -221,7 +277,46 @@ window.onload = function() {
    }
     function render(){
         //game.debug.cameraInfo(game.camera,32,32);
-        //game.debug.spriteCoords(player,32,500);
-        
+       // game.debug.spriteCoords(player,32,500);        
     }
+    function keyPress(char) {
+
+        //  Clear the BMD
+        bmd.cls();
+
+        //  Set the x value we'll start drawing the text from
+        var x = 64;
+
+        //  Loop through each letter of the word being entered and check them against the key that was pressed
+        for (var i = 0; i < word.length; i++)
+        {
+            var letter = word.charAt(i);
+
+            //  If they pressed one of the letters in the word, flag it as correct
+            if (char === letter)
+            {
+                correct[letter] = true;
+               
+            }
+
+            //  Now draw the word, letter by letter, changing colour as required
+            if (correct[letter])
+            {
+                bmd.context.fillStyle = '#00ff00';
+                count+=1;        
+            }
+            else
+            {
+                bmd.context.fillStyle = '#999999';
+            }
+
+            bmd.context.fillText(letter, x, 64);
+
+            x += bmd.context.measureText(letter).width;
+         
+        }
+
+}
+    
+    
 };
