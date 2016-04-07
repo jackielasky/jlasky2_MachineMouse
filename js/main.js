@@ -7,13 +7,13 @@ window.onload = function() {
     var game = new Phaser.Game( 800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update, render: render } );
     
     function preload() {
-         game.load.image('windows','assets/blueBackgroun1.png');
+         game.load.image('windows','assets/blueBackground2.png');
          game.load.image('bar','assets/bar.png')
          game.load.image('eFolder','assets/encryptedFolder.png');
          game.load.image('files','assets/files.png');
          game.load.image('folder','assets/folder2.png');
          game.load.image('mail','assets/mailIcon.png');
-         game.load.spritesheet('mouse','assets/mouse.png',32,70);
+         game.load.spritesheet('mouse','assets/mouse2.png');
          game.load.image('mIcon','assets/musicIcon.png');
          game.load.image('gIcon','assets/gameIcon.png');
          game.load.image('virus','assets/virus.png');
@@ -34,9 +34,9 @@ window.onload = function() {
        
     //change camera view of the game and add physics component
        game.physics.startSystem(Phaser.Physics.ARCADE);
-       game.add.tileSprite(0, 0, 1920, 1920,'windows');  //background
-       game.world.setBounds(0, 0, 1920, 1920);
-       game.add.image(-5,1874,'bar');
+       game.add.tileSprite(0, 0, 1000, 1000,'windows');  //background
+       game.world.setBounds(0, 0, 1000, 1000);
+       game.add.image(0,960,'bar');
      
         //the player
         player = game.add.sprite(0,0,'mouse');
@@ -185,7 +185,7 @@ window.onload = function() {
     
     function render(){
         //game.debug.cameraInfo(game.camera,32,32);
-       // game.debug.spriteCoords(player,32,500);
+        game.debug.spriteCoords(player,32,500);
         
     }
 };
