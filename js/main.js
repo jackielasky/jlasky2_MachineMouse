@@ -9,7 +9,7 @@ window.onload = function() {
     function preload() {
          game.load.image('windows','assets/blueBackground2.png');
          game.load.image('bar','assets/bar.png')
-         game.load.image('eFolder','assets/encryptedfolder.png');
+         game.load.image('eFolder','assets/encryptedfolder1.png');
          game.load.image('files','assets/files.png');
          game.load.image('folder','assets/folder2.png');
          game.load.image('mail','assets/mailIcon.png');
